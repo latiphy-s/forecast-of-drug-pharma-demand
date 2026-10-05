@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.env
+.env.*
+*.h5
+*.keras
+*.pkl
+iframe_figures/
+.DS_Store
