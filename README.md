@@ -96,25 +96,3 @@ Errors are in Extended Units. These are scores for the pre-test evaluation model
 ## Limitations
 
 The 313 observations cover January 2018 through December 2023. The CSV labels its market Northeast US, its units Extended Units and its source IQVIA MIDAS; provenance is not independently verified. Sales are not unconstrained demand and can be affected by stock availability. There are no quantified prediction intervals, recent observations or measured procurement benefits. Recursive errors can accumulate as the horizon grows. An all-history refit is not independently evaluated by the earlier holdout scores.
-
-## Verification
-
-```bash
-python -m pip install -r requirements-dev.txt
-python -m pytest -q
-```
-
-Tests load the real artifacts, compare all 12 projected values with the notebook's saved output (within 0.1 Extended Units for cross-platform numerical differences), check all horizon prefixes, validate weekly dates and exercise invalid-input handling. Streamlit AppTest checks each page and forecast controls. No model training is run.
-
-## Streamlit Community Cloud
-
-When ready to publish:
-
-1. Upload this project to the GitHub repository, including the `.keras`, `.pkl`, metadata and CSV files. The `.gitignore` explicitly permits these two named model artifacts.
-2. In Community Cloud, choose **Create app**, select the repository and branch, and set the entry point to **`app.py`**.
-3. In Advanced settings, select **Python 3.12** to match local verification. No secrets are required.
-4. Deploy and check the Forecast page at 1 and 12 weeks. The first launch can take longer while TensorFlow loads.
-
-The runtime requirements exclude notebook-only training and plotting tools. See the [official dependency guide](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/app-dependencies) and [deployment steps](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy).
-
-To run the research notebook separately, install `requirements-notebook.txt` and launch JupyterLab. The notebook fits models and overwrites exported artifacts when its save cell runs. Replace the export bundle together and rerun verification after any intentional model update.
