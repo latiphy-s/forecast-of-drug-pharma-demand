@@ -56,8 +56,3 @@ Open `pharma-drug-demand-forecasting-iqvia.ipynb`. Its saved outputs are retaine
 
 [Detailed notebook audit](docs/notebook-audit.md) distinguishes saved results from claims requiring further evaluation. A next experiment should use matched rolling forecast origins, train-only preprocessing, a seasonal-naive baseline and measured interval coverage.
 
-## Data and provenance
-
-The supplied CSV contains aggregated category sales and labels its source as IQVIA MIDAS. This label has not been independently authenticated. The notebook references [mderya/iqvia-pharma-sales on Kaggle](https://www.kaggle.com/datasets/mderya/iqvia-pharma-sales). No IQVIA affiliation is claimed; no additional data reuse license is granted by this repository.
-
-Implementation by Sebastian Latiphy. The initial notebook structure was adapted from Matt Derya's pharmaceutical forecasting project. This release uses Sebastian's corrected notebook and preserves its saved results. The audit and portfolio visualisation were prepared with AI assistance.
