@@ -1,6 +1,3 @@
-# Notebook evidence audit
-
-Sebastian Latiphy confirmed that this is his implementation, using an adapted notebook structure. The corrected notebook replaces an earlier copy containing leftover author and deployment links. Recorded model results are preserved.
 
 ## Recorded results
 
