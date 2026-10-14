@@ -1,0 +1,78 @@
+{
+  "source": "pharma-drug-demand-forecasting-iqvia.ipynb, cell 29 saved output",
+  "origin": "2022-11-14",
+  "full": [
+    {
+      "Model": "Prophet",
+      "MAE": 3551.134,
+      "RMSE": 4596.433,
+      "R\u00b2": 0.888,
+      "MAPE (%)": 4.768
+    },
+    {
+      "Model": "Seasonal naive (52 weeks)",
+      "MAE": 3617.887,
+      "RMSE": 4434.821,
+      "R\u00b2": 0.896,
+      "MAPE (%)": 5.076
+    },
+    {
+      "Model": "LSTM recursive",
+      "MAE": 6299.634,
+      "RMSE": 7631.701,
+      "R\u00b2": 0.692,
+      "MAPE (%)": 9.16
+    },
+    {
+      "Model": "ARIMA(2,1,2)",
+      "MAE": 16611.553,
+      "RMSE": 21154.74,
+      "R\u00b2": -1.364,
+      "MAPE (%)": 20.216
+    },
+    {
+      "Model": "Persistence",
+      "MAE": 16644.308,
+      "RMSE": 21190.713,
+      "R\u00b2": -1.372,
+      "MAPE (%)": 20.257
+    }
+  ],
+  "first_12": [
+    {
+      "Model": "Prophet",
+      "MAE": 1639.275,
+      "RMSE": 2065.981,
+      "R\u00b2": 0.918,
+      "MAPE (%)": 2.64
+    },
+    {
+      "Model": "LSTM recursive",
+      "MAE": 2612.263,
+      "RMSE": 3558.615,
+      "R\u00b2": 0.757,
+      "MAPE (%)": 4.399
+    },
+    {
+      "Model": "Seasonal naive (52 weeks)",
+      "MAE": 4041.085,
+      "RMSE": 4637.211,
+      "R\u00b2": 0.587,
+      "MAPE (%)": 6.21
+    },
+    {
+      "Model": "ARIMA(2,1,2)",
+      "MAE": 8384.795,
+      "RMSE": 10506.279,
+      "R\u00b2": -1.118,
+      "MAPE (%)": 12.182
+    },
+    {
+      "Model": "Persistence",
+      "MAE": 8415.726,
+      "RMSE": 10536.641,
+      "R\u00b2": -1.13,
+      "MAPE (%)": 12.229
+    }
+  ]
+}

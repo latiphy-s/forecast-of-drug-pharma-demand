@@ -1,58 +1,122 @@
 # Pharmaceutical sales forecasting
 
-A notebook study of weekly pharmaceutical sales, comparing an LSTM with ARIMA and Prophet. The central evaluation question is how the forecast horizon and available observations affect the comparison.
+**Sales, in season.** A Streamlit dashboard exploring eight pharmaceutical sales categories and 1–12-week N02BE projections. Built by Sebastian Latiphy.
 
-[Read the portfolio case study](https://www.latiphy.com/projects/forecast-of-drug-pharma-demand)
+The planning question: can historical sales patterns help inform spring purchasing reviews and lead-time planning? Explore the data, generate an exploratory projection and inspect the evidence before making that decision.
 
-## Recorded results
+**Live dashboard:** Coming soon.
+<!-- Replace the line above with: [Open the dashboard](YOUR_STREAMLIT_URL) -->
 
-These are saved notebook results, not a new training run or a matched-horizon benchmark.
+## Explore the dashboard
 
-| Model | MAE | RMSE | R² | MAPE |
-|---|---:|---:|---:|---:|
-| LSTM | 3,122.46 | 3,945.13 | 0.9212 | 4.07% |
-| Prophet | 4,392.99 | 5,719.13 | 0.8343 | 5.63% |
-| ARIMA | 12,713.74 | 14,164.37 | -0.0162 | 18.26% |
+- **Overview:** the project and six years of observed N02BE sales.
+- **Sales history:** interactive charts for all eight categories, with a data table.
+- **Seasonal patterns:** monthly average weekly sales and potential planning applications.
+- **Forecast:** selectable 1–12-week recursive LSTM projections, historical context, a forecast boundary, table and CSV download.
+- **Model & evidence:** matched fixed-origin benchmark scores and limitations.
 
-The LSTM uses recent observed test-period sales for rolling one-step predictions. ARIMA and Prophet forecast the whole test period from one origin. Their scores are therefore not a controlled ranking of model quality.
+The design follows [latiphy.com](https://www.latiphy.com/): warm charcoal, amber accents, ivory text and editorial serif headings.
 
-## Workflow
+## Local setup
+
+Use **Python 3.12**. From this project folder:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m streamlit run app.py
+```
+
+On Windows, activate with `.venv\Scripts\activate`.
+
+The dashboard needs no API key or external service. The first launch loads TensorFlow; subsequent interactions reuse the cached model. Projections are cached by horizon and file hashes. Nothing is retrained by the app.
+
+### Required files
+
+```text
+app.py
+forecasting.py
+evaluation.json
+forecast_metadata.json
+pharma_lstm_model.keras
+scaler.pkl
+data/iqvia_pharma_sales.csv
+.streamlit/config.toml
+requirements.txt
+```
+
+Keep the model, scaler and metadata from the same notebook export together. The supplied all-history scaler was fitted on 313 observations. The app validates model shape, metadata, scaler range/sample count, missing or nonnumeric sales, invalid/duplicate dates, negative values and seven-day continuity. Missing or inconsistent inputs produce an explicit error. It never substitutes an `.h5` model.
+
+`scaler.pkl` is a trusted local notebook artifact. Do not replace it with an untrusted pickle. `artifact_manifest.json` records SHA-256 hashes of the supplied notebook, data and inference artifacts.
+
+## How projections work
 
 ```mermaid
 flowchart LR
-    A[313 weekly observations] --> B[Explore eight sales categories]
-    B --> C[N02BE target]
-    C --> D[26-week input windows]
-    D --> E[LSTM]
-    C --> F[ARIMA and Prophet]
-    E --> G[Recorded error metrics]
-    F --> G
-    G --> H[Audit horizon, dates and preprocessing]
+    A[Validate weekly sales] --> B[Last 26 N02BE observations]
+    B --> C[Saved MinMaxScaler]
+    C --> D[Saved all-history LSTM]
+    D --> E[Next scaled prediction]
+    E --> F[Append to input window]
+    F --> D
+    E --> G[Inverse transform]
+    G --> H[Weekly dates, chart and CSV]
 ```
 
-The data spans 2018-01-01 to 2023-12-25. Feature preparation leaves 261 rows, yielding 188 training sequences and 47 test sequences. The LSTM has two recurrent layers, dropout and dense output layers. A separate exploratory scenario recursively forecasts 12 weeks with seasonal adjustment.
+The model uses only historical N02BE values. It has LSTM layers with 64 and 32 units, dropout layers and dense layers with 16 and 1 units. The notebook selected seven training epochs using pre-test validation, then trained a separate all-history model for inference.
 
-## Run locally
+The app reproduces `recursive_forecast` from notebook cell 24. Each prediction is appended to the scaled input window to predict the following week. There are no seasonal multipliers, artificial fluctuations or invented confidence intervals. Dates are exactly seven days apart.
 
-Use Python 3.11 in a virtual environment:
+With this dataset, the forecast origin is **25 December 2023**. Projections cover **1 January to 18 March 2024** at the maximum horizon. They are exploratory historical sales projections, not forecasts for today.
 
-```sh
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-jupyter lab
+## Findings and potential business applications
+
+N02BE monthly average weekly sales peak in March–May in this dataset. The pattern does not establish a clinical cause. March 2020 is an exceptional high-sales month. N02BA and N02BE move together, but correlation does not demonstrate patient switching.
+
+- **Spring purchasing reviews:** review supplier capacity and delivery schedules before the observed high-sales period, after confirming the pattern in recent data.
+- **Lead-time planning:** combine projections with inventory, expiry dates, service targets and delivery constraints.
+- **Candidate signals:** test lagged related-category sales against a target-history-only baseline.
+- **Measure value:** compare stockout days, expiry waste and inventory costs in a replenishment pilot before wider use. No inventory savings have been measured.
+
+## Matched-origin evaluation
+
+Source: `pharma-drug-demand-forecasting-iqvia.ipynb`, section 6, cell 29 saved outputs. `evaluation.json` is transcribed from those tables, retaining their displayed precision.
+
+All models use the same origin, **14 November 2022**, and receive no test-period observations. The 12-week period is **21 November 2022 to 6 February 2023**. The full 58-week holdout ends **25 December 2023**.
+
+| Model | 12-week MAE | 12-week RMSE | 58-week MAE | 58-week RMSE |
+|---|---:|---:|---:|---:|
+| Prophet | 1639.275 | 2065.981 | 3551.134 | 4596.433 |
+| LSTM recursive | 2612.263 | 3558.615 | 6299.634 | 7631.701 |
+| Seasonal naive (52 weeks) | 4041.085 | 4637.211 | 3617.887 | 4434.821 |
+| ARIMA(2,1,2) | 8384.795 | 10506.279 | 16611.553 | 21154.740 |
+| Persistence | 8415.726 | 10536.641 | 16644.308 | 21190.713 |
+
+Errors are in Extended Units. These are scores for the pre-test evaluation models, not the all-history inference model. One origin cannot establish a best model or statistical superiority. ARIMA is an untuned, nonseasonal baseline. Evaluate multiple origins and decision horizons before selecting a model.
+
+## Limitations
+
+The 313 observations cover January 2018 through December 2023. The CSV labels its market Northeast US, its units Extended Units and its source IQVIA MIDAS; provenance is not independently verified. Sales are not unconstrained demand and can be affected by stock availability. There are no quantified prediction intervals, recent observations or measured procurement benefits. Recursive errors can accumulate as the horizon grows. An all-history refit is not independently evaluated by the earlier holdout scores.
+
+## Verification
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
 ```
 
-Open `pharma-drug-demand-forecasting-iqvia.ipynb`. Its saved outputs are retained. The original Kaggle loader path in cell 6 must be replaced with `data/iqvia_pharma_sales.csv` for a local run. The `/kaggle/input` listing cell can be skipped. Training creates model and scaler files, which are ignored by Git. Dependencies below are an unpinned starting environment, not an exact reconstruction of Kaggle; saved output reports TensorFlow 2.19.0. Hardware and dependency changes may change results.
+Tests load the real artifacts, compare all 12 projected values with the notebook's saved output (within 0.1 Extended Units for cross-platform numerical differences), check all horizon prefixes, validate weekly dates and exercise invalid-input handling. Streamlit AppTest checks each page and forecast controls. No model training is run.
 
-## Evaluation limitations
+## Streamlit Community Cloud
 
-- The scaler is fitted before splitting. Refit using training observations only.
-- Engineered domain features are not inputs to the univariate LSTM, so their claimed improvement is not established.
-- Prophet's generated Sunday dates need alignment with the Monday observations.
-- The future plot's fixed ±8% band is illustrative, not a calibrated 90% confidence interval.
-- Correlations do not establish patient substitution or clinical causes. Sales are not necessarily unconstrained demand.
-- No runnable Streamlit app or trained model is included. No inventory savings were measured.
+When ready to publish:
 
-[Detailed notebook audit](docs/notebook-audit.md) distinguishes saved results from claims requiring further evaluation. A next experiment should use matched rolling forecast origins, train-only preprocessing, a seasonal-naive baseline and measured interval coverage.
+1. Upload this project to the GitHub repository, including the `.keras`, `.pkl`, metadata and CSV files. The `.gitignore` explicitly permits these two named model artifacts.
+2. In Community Cloud, choose **Create app**, select the repository and branch, and set the entry point to **`app.py`**.
+3. In Advanced settings, select **Python 3.12** to match local verification. No secrets are required.
+4. Deploy and check the Forecast page at 1 and 12 weeks. The first launch can take longer while TensorFlow loads.
 
+The runtime requirements exclude notebook-only training and plotting tools. See the [official dependency guide](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/app-dependencies) and [deployment steps](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy).
+
+To run the research notebook separately, install `requirements-notebook.txt` and launch JupyterLab. The notebook fits models and overwrites exported artifacts when its save cell runs. Replace the export bundle together and rerun verification after any intentional model update.

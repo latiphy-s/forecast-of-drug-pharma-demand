@@ -1,28 +1,23 @@
+# Forecasting methodology and evidence
 
-## Recorded results
+## Data and model inputs
 
-Training was not rerun. Results below come from saved notebook cells 24, 27 and 28 (zero-based).
+The supplied CSV contains 313 weekly observations from 1 January 2018 to 25 December 2023 and eight sales categories. The LSTM uses the previous 26 N02BE observations as its only input feature. Calendar and related-category features are candidates for further experiments.
 
-| Model | MAE | RMSE | R² | MAPE |
-|---|---:|---:|---:|---:|
-| LSTM | 3122.4608 | 3945.1343 | 0.9212 | 4.07% |
-| Prophet | 4392.9871 | 5719.1311 | 0.8343 | 5.63% |
-| ARIMA | 12713.7405 | 14164.3723 | -0.0162 | 18.26% |
+## Evaluation protocol
 
-## What the code actually does
+Notebook section 6 compares forecasts from a common origin of 14 November 2022. All models predict the same Monday dates without receiving holdout sales. The first 12 weeks end on 6 February 2023; the full 58-week holdout ends on 25 December 2023.
 
-- The supplied CSV has 313 weekly rows, eight sales categories and 22 columns, from 2018-01-01 to 2023-12-25. The introduction's monthly description is incorrect.
-- Feature engineering removes the first 52 rows, leaving 261 observations. Sequences use 26 prior observations and one target. There are 188 training sequences and 47 test sequences.
-- The LSTM input has one feature: past N02BE sales. Engineered calendar, rolling and domain features are not supplied to this model. The claim that they improved R² is not supported by the shown experiment.
-- MinMaxScaler is fitted on the complete series before the train/test split. Fit it on training observations only in a revised experiment.
-- LSTM test inputs contain observed prior test-period sales, giving rolling one-step predictions. ARIMA and Prophet generate the complete test horizon from one origin. These are different forecasting tasks.
-- Source observations are Mondays. Prophet uses freq='W', which generates Sundays, so predicted dates should be aligned explicitly before comparing values.
-- The future scenario recursively predicts 12 steps and applies an additional seasonal multiplier. It is not the same procedure as the test evaluation.
-- The displayed '90% Confidence Interval' is a fixed plus/minus 8% band. It is not calibrated statistical uncertainty.
-- Correlation alone cannot establish that patients switch between drugs. Sales need not equal unconstrained demand.
-- The CSV says 'IQVIA MIDAS', but that label alone does not verify origin, authenticity or redistribution terms.
-- The supplied files contain no saved model, scaler or runnable Streamlit app. The notebook's existing external app link is not Sebastian's deployment.
+The scaler is fitted on the initial fitting observations. A chronological validation segment selects seven training epochs, then the evaluation LSTM is refitted on pre-test sequences. Persistence, seasonal naive (52 weeks), ARIMA(2,1,2) and Prophet provide comparison forecasts. The one-step diagnostic is distinct from this matched-origin comparison.
 
-## Next experiment
+`evaluation.json` records the displayed scores from notebook cell 29. The dashboard and README report only the matched-origin results. A single origin does not establish statistical superiority or a universally best model.
 
-Use identical rolling origins and forecast horizons for every model, train-only preprocessing, explicit date alignment and a seasonal-naive baseline. Compare one-step and 12-week recursive forecasts separately. Estimate interval coverage from rolling backtests. Record original and revised results separately.
+## Dashboard inference
+
+Notebook cells 32 and 34 train and export a separate all-history model with its matching scaler and metadata. The app loads `pharma_lstm_model.keras` with compilation disabled and caches it. Each scaled prediction is appended to the 26-week input window, and projections are inverse-transformed into Extended Units. Dates start seven days after the final observation.
+
+The 12-week projection covers 1 January to 18 March 2024. There are no additional seasonal multipliers or uncertainty bands. Tests compare each horizon with the notebook's saved projection output, allowing 0.1 Extended Units for cross-platform floating-point differences. Local verification found a maximum difference below 0.003 Extended Units.
+
+## Interpretation boundaries
+
+N02BE monthly average weekly sales peak in March–May in this dataset; no clinical cause is established. Aggregate category correlation does not demonstrate patient substitution. Observed sales may be constrained by inventory availability. The CSV's source label does not independently establish provenance. Model performance across multiple origins, uncertainty coverage and operational inventory benefits remain to be assessed.

@@ -1,0 +1,7 @@
+{
+  "pharma-drug-demand-forecasting-iqvia.ipynb": "d2ac43538691cda87b07de98d7ae01d8010911a8b9061200ca09cfc9b584b938",
+  "data/iqvia_pharma_sales.csv": "fbd31bd8b89f08fdb74f02df2daa354b06c53923902a7317480060d7c0812a26",
+  "pharma_lstm_model.keras": "c04754d3859fd8a10e7e488f226d2eb87f13ac4a8774b9c3daf4274add71ac7b",
+  "scaler.pkl": "273c462b6f262a257c526b6bfb538fdedd8b55ff6eb64c32b5e1de29c45f256b",
+  "forecast_metadata.json": "571e668fbd6372de9b6e75b56bbbbc15e91054267cba5a778c27d1f9e0ef9f93"
+}
