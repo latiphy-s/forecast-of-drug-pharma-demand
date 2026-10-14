@@ -4,7 +4,7 @@
 
 The planning question: can historical sales patterns help inform spring purchasing reviews and lead-time planning? Explore the data, generate an exploratory projection and inspect the evidence before making that decision.
 
-**Live dashboard:** [Open the dashboard]([YOUR_STREAMLIT_URL](https://forecast-of-drug-pharma-demand.streamlit.app/))
+**Live dashboard:** [Open the dashboard]([https://forecast-of-drug-pharma-demand.streamlit.app/](https://forecast-of-drug-pharma-demand.streamlit.app/))
 
 ## Explore the dashboard
 
